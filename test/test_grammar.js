@@ -18,14 +18,14 @@ test('Parser recognizes number literals', function (t) {
 });
 
 test('Parser recognizes procedures', function (t) {
-    var ast = g.parse("procedure PutFourRedStones(){}");
+    var ast = g.parseProgram("procedure PutFourRedStones(){}");
     t.is(ast[0].arity, "routine");
     t.is(ast[0].name, "PutFourRedStones");
     t.is(ast[0].alias, "procedureDeclaration");
 });
 
 test('Parser recognizes functions', function (t) {
-    var ast = g.parse("function hasRedStones(){ return True }");
+    var ast = g.parseProgram("function hasRedStones(){ return True }");
     t.is(ast[0].arity, "routine");
     t.is(ast[0].name, "hasRedStones");
     t.is(ast[0].alias, "functionDeclaration");
@@ -33,13 +33,13 @@ test('Parser recognizes functions', function (t) {
 
 test('when function declared with empty body, should throw exception', function (t) {
     t.throws(function () {
-        g.parse("function hasRedStones(){  }");
+        g.parseProgram("function hasRedStones(){  }");
     });
 });
 
 test('when function declared without return statement, should throw exception', function (t) {
     t.throws(function () {
-        g.parse("function hasRedStones(){ if(True){}else{} }");
+        g.parseProgram("function hasRedStones(){ if(True){}else{} }");
     });
 });
 
