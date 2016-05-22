@@ -4,26 +4,28 @@ var merge = require('webpack-merge');
 
 var PATHS = {
     input: 'lib',
-    output: 'build'
+    output: 'dist'
 };
 
 var common = {
     entry: "./lib/entry.js",
     output: {
         path: path.join(__dirname, PATHS.output),
-        filename: "bundle.js"
+        filename: "bundle.js",
+        libraryTarget: 'umd',
+        library: 'gsLangCore'
     },
+    devtool: 'source-map',
     module: {
         loaders: [
-            { test: /\.css$/, loader: "style!css" }
+            {test: /\.css$/, loader: "style!css"}
         ]
     }
 };
 
 var TARGET = process.env.npm_lifecycle_event;
 
-if(TARGET === 'start' || !TARGET) {
-
+if (TARGET === 'start' || !TARGET) {
     module.exports = merge(common, {
         devServer: {
             contentBase: PATHS.build,
@@ -53,5 +55,4 @@ if(TARGET === 'start' || !TARGET) {
             new webpack.HotModuleReplacementPlugin()
         ]
     });
-
 }
