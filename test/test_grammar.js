@@ -25,9 +25,21 @@ test('Parser recognizes procedures', function (t) {
 });
 
 test('Parser recognizes functions', function (t) {
-    var ast = g.parse("function hasRedStones(){ return true }");
+    var ast = g.parse("function hasRedStones(){ return True }");
     t.is(ast[0].arity, "routine");
     t.is(ast[0].name, "hasRedStones");
     t.is(ast[0].alias, "functionDeclaration");
+});
+
+test('when function declared with empty body, should throw exception', function (t) {
+    t.throws(function () {
+        g.parse("function hasRedStones(){  }");
+    });
+});
+
+test('when function declared without return statement, should throw exception', function (t) {
+    t.throws(function () {
+        g.parse("function hasRedStones(){ if(True){}else{} }");
+    });
 });
 
