@@ -1,8 +1,11 @@
 {
     "name": "gs-weblang-core",
-    "version": "0.0.0",
+    "version": "0.1.0-beta1",
     "description": "Gobstones parser and interpreter",
-    "repository": "gobstones/gs-weblang-core",
+    "repository": {
+        "type": "git",
+        "url": "https://github.com/gobstones/gs-weblang-core.git"
+    },
     "main": "index.js",
     "keywords": [
         "gobstones",
@@ -11,26 +14,34 @@
     "author": "",
     "license": "MIT",
     "scripts": {
+        "commit": "git-cz",
         "test": "xo && nyc ava",
         "build": "npm-run-all --parallel build:*",
         "start": "webpack --progress --colors --watch & webpack-dev-server --progress --colors",
         "build:umd": "webpack --config webpack.config.js --output-filename index.umd.js",
-        "build:umd.min": "webpack --config webpack.config.js --output-filename index.umd.min.js -p"
+        "build:umd.min": "webpack --config webpack.config.js --output-filename index.umd.min.js -p",
+        "semantic-release": "semantic-release pre && npm publish && semantic-release post"
     },
     "devDependencies": {
         "ava": "^0.14.0",
-        "xo": "^0.14.0",
-        "nyc": "^6.4.0",
+        "commitizen": "^2.8.1",
+        "cz-conventional-changelog": "^1.1.6",
         "npm-install-webpack-plugin": "^2.0.2",
+        "nyc": "^6.4.0",
+        "semantic-release": "^4.3.5",
         "style-loader": "^0.13.0",
         "webpack": "^1.13.1",
         "webpack-dev-server": "^1.14.1",
-        "webpack-merge": "^0.7.3"
+        "webpack-merge": "^0.7.3",
+        "xo": "^0.14.0"
     },
     "dependencies": {
         "app": "^0.1.0"
     },
-    "xo":{
-        "space":4
+    "xo": {
+        "space": 4
+    },
+    "czConfig": {
+        "path": "node_modules/cz-conventional-changelog"
     }
 }
