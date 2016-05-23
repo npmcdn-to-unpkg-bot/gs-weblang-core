@@ -8,7 +8,7 @@ var PATHS = {
 };
 
 var common = {
-    entry: "./lib/entry.js",
+    entry: "./lib/expose.js",
     output: {
         path: path.join(__dirname, PATHS.output),
         filename: "bundle.js",
