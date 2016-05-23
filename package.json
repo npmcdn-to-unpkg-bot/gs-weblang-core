@@ -27,6 +27,7 @@
         "commitizen": "^2.8.1",
         "cz-conventional-changelog": "^1.1.6",
         "npm-install-webpack-plugin": "^2.0.2",
+        "npm-run-all": "^2.1.1",
         "nyc": "^6.4.0",
         "semantic-release": "^4.3.5",
         "style-loader": "^0.13.0",
@@ -35,9 +36,7 @@
         "webpack-merge": "^0.7.3",
         "xo": "^0.14.0"
     },
-    "dependencies": {
-        "app": "^0.1.0"
-    },
+    "dependencies": {},
     "xo": {
         "space": 4
     },
@@ -46,5 +45,4 @@
             "path": "./node_modules/cz-conventional-changelog"
         }
     }
-
 }
