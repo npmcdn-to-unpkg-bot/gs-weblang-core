@@ -1,5 +1,6 @@
 node_modules
 /dist
+/umd
 .nyc_output
 coverage
 *.log

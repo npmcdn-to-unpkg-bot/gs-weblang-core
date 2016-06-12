@@ -8,17 +8,17 @@ var PATHS = {
 };
 
 var common = {
-    entry: "./lib/expose.js",
+    entry: './lib/expose.js',
     output: {
         path: path.join(__dirname, PATHS.output),
-        filename: "bundle.js",
+        filename: 'bundle.js',
         libraryTarget: 'umd',
         library: 'gsLangCore'
     },
     devtool: 'source-map',
     module: {
         loaders: [
-            {test: /\.css$/, loader: "style!css"}
+            {test: /\.css$/, loader: 'style!css'}
         ]
     }
 };

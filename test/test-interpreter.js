@@ -14,7 +14,7 @@ test.beforeEach(function () {
 
 test('Parser recognizes functions', function () {
     var context = new Context();
-    var ast = g.parseProgram(" program { Poner(red()) } function red(){ return Rojo }");
+    var ast = g.parseProgram(' program { Poner(red()) } function red(){ return Rojo }');
     g.interpret(ast, context);
     console.log(context);
 });
