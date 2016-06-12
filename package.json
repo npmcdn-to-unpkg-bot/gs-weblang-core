@@ -6,7 +6,10 @@
         "type": "git",
         "url": "https://github.com/gobstones/gs-weblang-core.git"
     },
-    "files": ["umd"],
+    "files": [
+        "umd",
+        "README.md"
+    ],
     "main": "index.js",
     "keywords": [
         "gobstones",

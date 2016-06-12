@@ -4,7 +4,7 @@ var merge = require('webpack-merge');
 
 var PATHS = {
     input: 'lib',
-    output: 'dist'
+    output: 'umd'
 };
 
 var common = {
@@ -13,7 +13,7 @@ var common = {
         path: path.join(__dirname, PATHS.output),
         filename: 'bundle.js',
         libraryTarget: 'umd',
-        library: 'gsLangCore'
+        library: 'gsWeblangCore'
     },
     devtool: 'source-map',
     module: {
