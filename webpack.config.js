@@ -11,16 +11,11 @@ var common = {
     entry: './lib/expose.js',
     output: {
         path: path.join(__dirname, PATHS.output),
-        filename: 'bundle.js',
+        filename: './index.umd.js',
         libraryTarget: 'umd',
         library: 'gsWeblangCore'
     },
-    devtool: 'source-map',
-    module: {
-        loaders: [
-            {test: /\.css$/, loader: 'style!css'}
-        ]
-    }
+    devtool: 'source-map'
 };
 
 var TARGET = process.env.npm_lifecycle_event;
@@ -55,4 +50,6 @@ if (TARGET === 'start' || !TARGET) {
             new webpack.HotModuleReplacementPlugin()
         ]
     });
+} else {
+    module.exports = common;
 }
