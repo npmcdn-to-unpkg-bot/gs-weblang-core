@@ -42,7 +42,8 @@
     },
     "dependencies": {},
     "xo": {
-        "space": 4
+        "space": 4,
+        "ignores": ["playground/**", "umd/**"]
     },
     "config": {
         "commitizen": {
