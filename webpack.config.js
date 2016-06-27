@@ -8,7 +8,7 @@ var PATHS = {
 };
 
 var common = {
-    entry: './lib/expose.js',
+    entry: './lib/public.js',
     output: {
         path: path.join(__dirname, PATHS.output),
         filename: './index.umd.js',
