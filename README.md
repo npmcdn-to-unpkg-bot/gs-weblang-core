@@ -5,3 +5,25 @@
 [![semantic-release](https://img.shields.io/badge/%20%20%F0%9F%93%A6%F0%9F%9A%80-semantic--release-e10079.svg)](https://github.com/semantic-release/semantic-release)
 [![XO code style](https://img.shields.io/badge/code_style-XO-5ed9c7.svg)](https://github.com/sindresorhus/xo)
 
+## hello-world example
+```js
+function parse(sourceCode) {
+	var tokens = gsWeblangCore.tokens
+	var interpreter = gsWeblangCore.interpreter
+	var Lexer = gsWeblangCore.lexer
+	var Parser = gsWeblangCore.parser
+	var Grammar = gsWeblangCore.grammar
+	var Context = gsWeblangCore.context
+
+	var grammar = Grammar(Parser, new Lexer(), tokens, interpreter)
+	var ast = grammar.parseProgram(sourceCode);
+	var context = new Context()
+	grammar.interpret(ast, context);
+
+	return context.board().table;
+}
+
+// ---------
+
+parse("program { Mover(Norte)\nPoner(Azul) }");
+```
