@@ -1,7 +1,6 @@
 node_modules
 /dist
 /umd
-/playground
 .nyc_output
 coverage
 *.log
