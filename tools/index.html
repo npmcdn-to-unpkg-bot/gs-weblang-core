@@ -85,7 +85,9 @@ program {
         }
     };
 
-
+    $.ajaxSetup({
+        cache: true
+    });
 
     $.getScript("https://npmcdn.com/gs-weblang-core@" + getUrlParameter("v") + "/umd/index.umd.js", function() {
         var editor = ace.edit("editor");
