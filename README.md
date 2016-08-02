@@ -22,3 +22,26 @@ Developer tools that include ascii board and AST viewer can be found on: `http:/
 
 
 Replace the version `v` with the desire version you want to try.
+
+### hello-world example
+```js
+function parse(sourceCode) {
+	var tokens = gsWeblangCore.tokens
+	var interpreter = gsWeblangCore.interpreter
+	var Lexer = gsWeblangCore.lexer
+	var Parser = gsWeblangCore.parser
+	var Grammar = gsWeblangCore.grammar
+	var Context = gsWeblangCore.context
+
+	var grammar = Grammar(Parser, new Lexer(), tokens, interpreter)
+	var ast = grammar.parseProgram(sourceCode);
+	var context = new Context()
+	grammar.interpret(ast, context);
+
+	return context.board().table;
+}
+
+// ---------
+
+parse("program { Mover(Norte)\nPoner(Azul) }");
+```
