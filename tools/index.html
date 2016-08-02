@@ -36,6 +36,7 @@
         }
 
         #result, #ast {
+            height: 100%;
             margin-top: 5px;
             background-color: white;
             overflow: scroll;
@@ -88,7 +89,10 @@ program {
         cache: true
     });
 
-    $.getScript("https://npmcdn.com/gs-weblang-core@" + getUrlParameter("v") + "/umd/index.umd.js", function() {
+    var version = getUrlParameter("v");
+    var remote = (version?"https://npmcdn.com/gs-weblang-core@" + getUrlParameter("v") : "")  + "/umd/index.umd.js";
+
+    $.getScript(remote, function() {
         var editor = ace.edit("editor");
         editor.setTheme("ace/theme/chrome");
         editor.session.setMode("ace/mode/gobstones");
@@ -119,35 +123,36 @@ program {
 
                 var context = new Context();
                 context.init();
-                try {
+//                try {
                     var ast = grammar.parseProgram(source);
                     console.log(source);
                     console.log(ast);
                     document.getElementById('ast').innerHTML = JSON.stringify(ast, replacer, '  ');
-                    try {
-                        grammar.interpret(ast, context);
-                    } catch (e) {
-                        console.log("INTERPRETER ERROR: ", e);
-                    }
+//                }
+//                catch (e) {
+//                    if (e) {
+//                        console.log("CATCHED PARSER ERROR: ", e);
+//                        editor.getSession().setAnnotations([{
+//                            row: e.on.row,
+//                            column: 0,
+//                            text: e.error,
+//                            type: "error" // also warning and information
+//                        }]);
+////                    }
+//                }
 
-                    console.log(context.board());
-                    var string = context.board().printAscii();
-                    document.getElementById('result').innerHTML = string
-                        .replace(/&/g, '&amp;')
-                        .replace(/[<]/g, '&lt;');
+                //                    try {
+                grammar.interpret(ast, context);
+//                    } catch (e) {
+//                        console.log("INTERPRETER ERROR: ", e);
+//                    }
 
-                }
-                catch (e) {
-                    if (e) {
-                        console.log("CATCHED PARSER ERROR: ", e);
-                        editor.getSession().setAnnotations([{
-                            row: e.on.row,
-                            column: 0,
-                            text: e.error,
-                            type: "error" // also warning and information
-                        }]);
-                    }
-                }
+                console.log(context.board());
+                var string = context.board().printAscii();
+                document.getElementById('result').innerHTML = string
+                    .replace(/&/g, '&amp;')
+                    .replace(/[<]/g, '&lt;');
+
             }
 
             editor.on("input", function () {
