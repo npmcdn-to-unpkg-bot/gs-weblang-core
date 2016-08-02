@@ -63,76 +63,97 @@ program {
         </pre>
     </section>
 </div>
-
+<!--https://npmcdn.com/gs-weblang-core@0.1.3/-->
+<script   src="https://code.jquery.com/jquery-3.1.0.min.js"   integrity="sha256-cCueBR6CsyA4/9szpPfrX3s49M9vUU5BgtiJj06wt/s="   crossorigin="anonymous"></script>
 <script src="src-min-noconflict/ace.js" type="text/javascript" charset="utf-8"></script>
-<script src="../umd/index.umd.js" type="text/javascript" charset="utf-8"></script>
 
 <script>
-    var editor = ace.edit("editor");
-    editor.setTheme("ace/theme/chrome");
-    editor.session.setMode("ace/mode/gobstones");
-    editor.getSession().setTabSize(4);
-    editor.setHighlightActiveLine(false);
 
-    function replacer(key,value)
-    {
-        if (key == "scope") return undefined;
-        else if (key == "interpret") return undefined;
-        else if (key == "eval") return undefined;
-        else return value;
-    }
 
-    (function () {
+    var getUrlParameter = function getUrlParameter(sParam) {
+        var sPageURL = decodeURIComponent(window.location.search.substring(1)),
+            sURLVariables = sPageURL.split('&'),
+            sParameterName,
+            i;
 
-        function go(source) {
-            var tokens = window.gsWeblangCore.tokens;
-            var interpreter = window.gsWeblangCore.interpreter;
-            var Lexer = window.gsWeblangCore.lexer;
-            var Parser = window.gsWeblangCore.parser;
-            var Grammar = window.gsWeblangCore.grammar;
-            var Context = window.gsWeblangCore.context;
+        for (i = 0; i < sURLVariables.length; i++) {
+            sParameterName = sURLVariables[i].split('=');
 
-            var grammar = Grammar(Parser, new Lexer(), tokens, interpreter);
-            editor.getSession().clearAnnotations();
-
-            var context = new Context();
-            context.init();
-            try {
-                var ast = grammar.parseProgram(source);
-                console.log(source);
-                console.log(ast);
-                document.getElementById('ast').innerHTML = JSON.stringify(ast, replacer, '  ');
-                try {
-                    grammar.interpret(ast, context);
-                } catch (e) {
-                    console.log("INTERPRETER ERROR: ", e);
-                }
-
-                console.log(context.board());
-                var string = context.board().printAscii();
-                document.getElementById('result').innerHTML = string
-                    .replace(/&/g, '&amp;')
-                    .replace(/[<]/g, '&lt;');
-
-            }
-            catch (e) {
-                if (e) {
-                    console.log("CATCHED PARSER ERROR: ", e);
-                    editor.getSession().setAnnotations([{
-                        row: e.on.row,
-                        column: 0,
-                        text: e.error,
-                        type: "error" // also warning and information
-                    }]);
-                }
+            if (sParameterName[0] === sParam) {
+                return sParameterName[1] === undefined ? true : sParameterName[1];
             }
         }
+    };
 
-        editor.on("input", function () {
-            go(editor.getValue());
-        });
-    }());
 
+
+    $.getScript("https://npmcdn.com/gs-weblang-core@" + getUrlParameter("v") + "/umd/index.umd.js", function() {
+        var editor = ace.edit("editor");
+        editor.setTheme("ace/theme/chrome");
+        editor.session.setMode("ace/mode/gobstones");
+        editor.getSession().setTabSize(4);
+        editor.setHighlightActiveLine(false);
+
+
+        function replacer(key,value)
+        {
+            if (key == "scope") return undefined;
+            else if (key == "interpret") return undefined;
+            else if (key == "eval") return undefined;
+            else return value;
+        }
+
+        (function () {
+
+            function go(source) {
+                var tokens = window.gsWeblangCore.tokens;
+                var interpreter = window.gsWeblangCore.interpreter;
+                var Lexer = window.gsWeblangCore.lexer;
+                var Parser = window.gsWeblangCore.parser;
+                var Grammar = window.gsWeblangCore.grammar;
+                var Context = window.gsWeblangCore.context;
+
+                var grammar = Grammar(Parser, new Lexer(), tokens, interpreter);
+                editor.getSession().clearAnnotations();
+
+                var context = new Context();
+                context.init();
+                try {
+                    var ast = grammar.parseProgram(source);
+                    console.log(source);
+                    console.log(ast);
+                    document.getElementById('ast').innerHTML = JSON.stringify(ast, replacer, '  ');
+                    try {
+                        grammar.interpret(ast, context);
+                    } catch (e) {
+                        console.log("INTERPRETER ERROR: ", e);
+                    }
+
+                    console.log(context.board());
+                    var string = context.board().printAscii();
+                    document.getElementById('result').innerHTML = string
+                        .replace(/&/g, '&amp;')
+                        .replace(/[<]/g, '&lt;');
+
+                }
+                catch (e) {
+                    if (e) {
+                        console.log("CATCHED PARSER ERROR: ", e);
+                        editor.getSession().setAnnotations([{
+                            row: e.on.row,
+                            column: 0,
+                            text: e.error,
+                            type: "error" // also warning and information
+                        }]);
+                    }
+                }
+            }
+
+            editor.on("input", function () {
+                go(editor.getValue());
+            });
+        }());
+    });
 
 </script>
 
