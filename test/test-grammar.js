@@ -25,7 +25,7 @@ test('Parser recognizes procedures', function (t) {
 });
 
 test('Parser recognizes functions', function (t) {
-    var ast = g.parseProgram('function hasRedStones(){ return True }');
+    var ast = g.parseProgram('function hasRedStones(){ return(True) }');
     t.is(ast[0].arity, 'routine');
     t.is(ast[0].name, 'hasRedStones');
     t.is(ast[0].alias, 'functionDeclaration');
@@ -43,3 +43,14 @@ test('when function declared without return statement, should throw exception', 
     });
 });
 
+test('when function declared uppercase should throw exception', function (t) {
+    t.throws(function () {
+        g.parseProgram('function HasRedStones(){ return(True) }');
+    });
+});
+
+test('when function declared lowercase should throw exception', function (t) {
+    t.throws(function () {
+        g.parseProgram('procedure hasRedStones(){ }');
+    });
+});

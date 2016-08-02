@@ -45,7 +45,7 @@
     "xo": {
         "space": 4,
         "ignores": [
-            "playground/**",
+            "tools/**",
             "umd/**"
         ]
     },
