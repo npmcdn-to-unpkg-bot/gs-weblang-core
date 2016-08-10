@@ -90,6 +90,7 @@ program {
     });
 
     var version = getUrlParameter("v");
+    var full = getUrlParameter("full");
     var remote = (version?"https://npmcdn.com/gs-weblang-core@" + getUrlParameter("v") : "")  + "/umd/index.umd.js";
 
     $.getScript(remote, function() {
@@ -99,11 +100,11 @@ program {
         editor.getSession().setTabSize(4);
         editor.setHighlightActiveLine(false);
 
-
         function replacer(key,value)
         {
             if (key == "scope") return undefined;
             else if (key == "interpret") return undefined;
+            else if (key == "range" && !full) return undefined;
             else if (key == "eval") return undefined;
             else return value;
         }
