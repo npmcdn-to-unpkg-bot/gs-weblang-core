@@ -1,0 +1,168 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+    <title>Editor</title>
+    <style type="text/css" media="screen">
+        body, html, #container {
+            margin: 0;
+            overflow: hidden;
+            height: 100%;
+        }
+
+        #editor {
+            margin: 0;
+            height: 100%;
+            flex: 3 0px;
+        }
+
+        #container {
+            display: -webkit-box;
+            display: -moz-box;
+            display: -ms-flexbox;
+            display: -webkit-flex;
+            display: flex;
+        }
+
+        #container > * {
+            padding: 10px;
+            flex: 1 100%;
+        }
+
+        .tree {
+            background-color: #e2e2e2;
+            order: 1;
+        }
+
+        #result, #ast {
+            height: 100%;
+            margin-top: 5px;
+            background-color: white;
+            overflow: scroll;
+        }
+    </style>
+</head>
+<body>
+
+<div id="container">
+    <pre id="editor">
+program {
+    Poner(Rojo)
+}
+    </pre>
+
+    <section class="tree">
+        <button id="run" onclick="runParser();">Run</button>
+        <pre id="result">
+
+        </pre>
+    </section>
+    <section class="tree">
+        <pre id="ast">
+
+        </pre>
+    </section>
+</div>
+<script   src="https://code.jquery.com/jquery-3.1.0.min.js"   integrity="sha256-cCueBR6CsyA4/9szpPfrX3s49M9vUU5BgtiJj06wt/s="   crossorigin="anonymous"></script>
+<script src="src-min-noconflict/ace.js" type="text/javascript" charset="utf-8"></script>
+
+<script>
+
+
+    var getUrlParameter = function getUrlParameter(sParam) {
+        var sPageURL = decodeURIComponent(window.location.search.substring(1)),
+            sURLVariables = sPageURL.split('&'),
+            sParameterName,
+            i;
+
+        for (i = 0; i < sURLVariables.length; i++) {
+            sParameterName = sURLVariables[i].split('=');
+
+            if (sParameterName[0] === sParam) {
+                return sParameterName[1] === undefined ? true : sParameterName[1];
+            }
+        }
+    };
+
+    $.ajaxSetup({
+        cache: true
+    });
+
+    var version = getUrlParameter("v");
+    var full = getUrlParameter("full");
+    var remote = (version?"https://npmcdn.com/gs-weblang-core@" + getUrlParameter("v") : "")  + "/umd/index.umd.js";
+
+    $.getScript(remote, function() {
+        var editor = ace.edit("editor");
+        editor.setTheme("ace/theme/chrome");
+        editor.session.setMode("ace/mode/gobstones");
+        editor.getSession().setTabSize(4);
+        editor.setHighlightActiveLine(false);
+
+        function replacer(key,value)
+        {
+            if (key == "scope") return undefined;
+            else if (key == "interpret") return undefined;
+            else if (key == "range" && !full) return undefined;
+            else if (key == "eval") return undefined;
+            else return value;
+        }
+
+        (function () {
+
+            function go(source) {
+                var tokens = window.gsWeblangCore.tokens;
+                var interpreter = window.gsWeblangCore.interpreter;
+                var Lexer = window.gsWeblangCore.lexer;
+                var Parser = window.gsWeblangCore.parser;
+                var Grammar = window.gsWeblangCore.grammar;
+                var Context = window.gsWeblangCore.context;
+
+                var grammar = Grammar(Parser, new Lexer(), tokens, interpreter);
+                editor.getSession().clearAnnotations();
+
+                var context = new Context();
+                context.init();
+//                try {
+                    var ast = grammar.parseProgram(source);
+                    console.log(source);
+                    console.log(ast);
+                    document.getElementById('ast').innerHTML = JSON.stringify(ast, replacer, '  ');
+//                }
+//                catch (e) {
+//                    if (e) {
+//                        console.log("CATCHED PARSER ERROR: ", e);
+//                        editor.getSession().setAnnotations([{
+//                            row: e.on.row,
+//                            column: 0,
+//                            text: e.error,
+//                            type: "error" // also warning and information
+//                        }]);
+////                    }
+//                }
+
+                //                    try {
+                grammar.interpret(ast, context);
+//                    } catch (e) {
+//                        console.log("INTERPRETER ERROR: ", e);
+//                    }
+
+                console.log(context.board());
+                var string = context.board().printAscii();
+                document.getElementById('result').innerHTML = string
+                    .replace(/&/g, '&amp;')
+                    .replace(/[<]/g, '&lt;');
+
+            }
+
+            editor.on("input", function () {
+                go(editor.getValue());
+            });
+        }());
+    });
+
+</script>
+
+</body>
+</html>
