@@ -12,8 +12,8 @@ Npm package can be found on [gs-weblang-core](https://www.npmjs.com/package/gs-w
 
 ### CDN
 
-Universal module files can be found on [npmcdn](https://npmcdn.com)
-For instance, version `0.1.4` can be fetched from `https://npmcdn.com/gs-weblang-core@0.1.4/umd/`
+Universal module files can be found on [unpkg](https://unpkg.com)
+For instance, version `0.1.4` can be fetched from `https://unpkg.com/gs-weblang-core@0.1.4/umd/`
 
 ### Developer Tools
 
