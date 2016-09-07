@@ -91,7 +91,7 @@ program {
 
     var version = getUrlParameter("v");
     var full = getUrlParameter("full");
-    var remote = (version?"https://npmcdn.com/gs-weblang-core@" + getUrlParameter("v") : "")  + "/umd/index.umd.js";
+    var remote = (version?"https://npmcdn.com/gs-weblang-core@" + getUrlParameter("v") : "")  + "../newlib/newlib.js";
 
     $.getScript(remote, function() {
         var editor = ace.edit("editor");
