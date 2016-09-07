@@ -419,6 +419,7 @@ gbs.Parser.prototype.advance = function (id) {
         return this.token;
     }
     t = tokens.next();
+    log('t: ', t);
     v = t.value;
     a = t.type;
     if (a === 'name') {
@@ -439,6 +440,7 @@ gbs.Parser.prototype.advance = function (id) {
     } else {
         throwParserError(t, 'Unexpected token.');
     }
+    log('o: ', t);
 
     var token = Object.create(o);
     token.range = t.range;
@@ -539,6 +541,17 @@ gbs.Parser.prototype.infix = function (id, bp, led) {
     return s;
 };
 
+gbs.Parser.prototype.prefix = function (id, nud) {
+    var s = this.symbol(id);
+    s.nud = nud || function () {
+            self.scope.reserve(this);
+            this.left = self.expression(70);
+            this.arity = 'unary';
+            return this;
+        };
+    return s;
+};
+
 gbs.Parser.prototype.root = function (symbol, f) {
     var x = this.symbol(symbol);
     x.root = f;
@@ -565,13 +578,59 @@ gbs.Parser.prototype.parseExpression = function (input) {
     return s;
 };
 
+/**********************************************************************************************************************/
+/************************************************ GRAMMAR *************************************************************/
+/**********************************************************************************************************************/
+
+var Context = function () {
+    var variablesStack = [];
+    var currentVariables = {};
+
+    this.init = function () {
+    };
+
+    this.board = function () {
+    };
+
+    this.put = function (key, value) {
+        currentVariables[key] = value;
+    };
+
+    this.get = function (id) {
+        return currentVariables[id];
+    };
+
+    this.all = function () {
+        return currentVariables;
+    };
+
+    this.startContext = function () {
+        variablesStack.push(currentVariables);
+        currentVariables = {};
+    };
+
+    this.stopContext = function () {
+        currentVariables = variablesStack.pop();
+    };
+
+    this.init();
+};
+
+/**********************************************************************************************************************/
+/************************************************** NODES *************************************************************/
+/**********************************************************************************************************************/
+
+var STM = 'statement';
+var BINARY = 'binary';
+var EXPRESSION = 'binary';
+
 gbs.node = {};
 
 gbs.node.BinaryOperation = function (token, left, right) {
     this.token = token;
     this.left = left;
     this.right = right;
-    this.arity = 'binary';
+    this.arity = BINARY;
 };
 
 function defineBinaryOperation(className) {
@@ -616,47 +675,77 @@ gbs.node.ProcedureCall = function (node, declarationProvider, parameters) {
     this.declarationProvider = declarationProvider;
 };
 
+gbs.node.MoveClaw = function (node, parameters) {
+    this.arity = STM;
+    this.name = 'MoveClaw';
+    this.parameters = parameters;
+};
+
+gbs.node.RemoveStone = function (node, parameters) {
+    this.arity = STM;
+    this.name = 'RemoveStone';
+    this.parameters = parameters;
+};
+
+gbs.node.PutStone = function (node, parameters) {
+    this.arity = STM;
+    this.name = 'PutStone';
+    this.parameters = parameters;
+};
+
+gbs.node.Boom = function () {
+    this.arity = STM;
+    this.name = 'BOOM';
+};
+
+gbs.node.HasStones = function (node, parameters) {
+    this.arity = EXPRESSION;
+    this.name = 'hasStones';
+    this.parameters = parameters;
+};
+
+gbs.node.CanMove = function (node, parameters) {
+    this.arity = EXPRESSION;
+    this.name = 'canMove';
+    this.parameters = parameters;
+};
+
+gbs.node.Assignment = function (left, right) {
+    this.arity = STM;
+    this.alias = ':=';
+    this.left = left;
+    this.right = right;
+};
+
 /**********************************************************************************************************************/
 /************************************************ GRAMMAR *************************************************************/
 /**********************************************************************************************************************/
 
-var Context = function () {
-    var variablesStack = [];
-    var currentVariables = {};
+function parameterListCall(parser) {
+    var parameters = [];
+    if (parser.token.id !== ')') {
+        for (; ;) {
+            parameters.push(parser.expression(0));
+            if (parser.token.id !== ',') {
+                break;
+            }
+            parser.advance(',');
+        }
+    }
+    parser.advance(')');
+    return parameters;
+}
 
-    this.init = function () {
-    };
+function parenthesisExpression(parser) {
+    parser.advance('(');
+    var p = parser.expression(0);
+    parser.advance(')');
+    return p;
+}
 
-    this.board = function () {
-    };
-
-    this.put = function (key, value) {
-        currentVariables[key] = value;
-    };
-
-    this.get = function (id) {
-        return currentVariables[id];
-    };
-
-    this.all = function () {
-        return currentVariables;
-    };
-
-    this.startContext = function () {
-        variablesStack.push(currentVariables);
-        currentVariables = {};
-    };
-
-    this.stopContext = function () {
-        currentVariables = variablesStack.pop();
-    };
-
-    this.init();
-};
-
-/**********************************************************************************************************************/
-/************************************************ CONTEXT *************************************************************/
-/**********************************************************************************************************************/
+function bodyStatement(parser) {
+    return (parser.token.id === '{') ? parser.block() : [parser.statement()];
+}
 
 gbs.Grammar = function () {
 
@@ -708,37 +797,57 @@ define.stmt(';', function () {
     return separator;
 });
 
-function parameterListCall() {
-    var parameters = [];
-    if (g.token.id !== ')') {
-        for (; ;) {
-            parameters.push(g.expression(0));
-            if (g.token.id !== ',') {
-                break;
-            }
-            g.advance(',');
-        }
-    }
-    g.advance(')');
-    return parameters;
-}
-
 define.infix('(', 80, function (left) {
     if (left.arity !== 'name') {
         throwParserError(left, left.value + ' no es una función o procedimiento');
     }
-    var parameters = parameterListCall();
+    var parameters = parameterListCall(g);
     var node;
     if (left.value[0].toUpperCase() === left.value[0]) {
-        node = b.procedureCall(left, function () {
+        node = new gbs.node.ProcedureCall(left, function () {
             return g.scope.find(left.value);
         }, parameters);
     } else {
-        node = b.functionCall(left, function () {
+        node = new gbs.node.FunctionCall(left, function () {
             return g.scope.find(left.value);
         }, parameters);
     }
     return node;
+});
+
+define.infixr(':=', 10, function (left) {
+    if (left.id !== '.' && left.id !== '[' && left.arity !== 'name') {
+        g.error(left, 'Bad lvalue.');
+    }
+    return new gbs.node.Assignment(left, g.expression(9));
+});
+
+define.stmt(n.PUT, function () {
+    return new gbs.node.PutStone(parameterListCall(g));
+});
+
+define.stmt(n.REMOVE, function () {
+    return new gbs.node.RemoveStone(parameterListCall(g));
+});
+
+define.stmt(n.MOVE, function () {
+    return new gbs.node.MoveClaw(parameterListCall(g));
+});
+
+define.stmt(n.BOOM, function () {
+    var token = g.token;
+    if (parenthesisExpression(g)) {
+        throwParserError(token, 'BOOM no lleva parámetros')
+    }
+    return new gbs.node.Boom(token);
+});
+
+define.prefix(n.HAS_STONES, function () {
+    return new gbs.node.HasStones(parameterListCall(g));
+});
+
+define.prefix(n.CAN_MOVE, function () {
+    return new gbs.node.CanMove(parameterListCall(g));
 });
 
 /**********************************************************************************************************************/
@@ -813,7 +922,7 @@ gbs.node.ProcedureCall.prototype.interpret = function (context) {
     return context;
 };
 
-var literal = g.symbol('(literal)');
+var literal = define.symbol('(literal)');
 literal.nud = function () {
     return new gbs.node.NumericLiteral(this.value);
 };
